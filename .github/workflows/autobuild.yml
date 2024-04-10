@@ -61,7 +61,6 @@ jobs:
       - id: build
         run: |
           nix build ".#bubblewrap-${{ matrix.system }}"
-          nix eval ".#bubblewrap-${{ matrix.system }}" > result
 
       - id: pack
         run: |
