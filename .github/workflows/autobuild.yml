@@ -64,7 +64,7 @@ jobs:
 
       - id: pack
         run: |
-          tar --zstd -cvf bubblewrap-${{ matrix.system }}.tar.zst result
+          tar --zstd -cvf bubblewrap-${{ matrix.system }}.tar.zst -C result .
 
       - id: upload
         uses: actions/upload-artifact@v4
