@@ -124,5 +124,5 @@ jobs:
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           cat<<EOF >> $GITHUB_STEP_SUMMARY
-          Created release https://$GITHUB_REPOSITORY/releases/tag/$RELEASE_NAME.
+          Created release https://github.com/$GITHUB_REPOSITORY/releases/tag/$RELEASE_NAME.
           EOF
