@@ -76,4 +76,4 @@ jobs:
       - uses: actions/download-artifact@v4
 
       - run: |
-          ls -la
+          tree
