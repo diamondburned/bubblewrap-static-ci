@@ -31,7 +31,7 @@ jobs:
           echo "needs_update=$needs_update" >> $GITHUB_OUTPUT
 
       - id: commit
-        if: steps.check.outputs.needs_update == 'true'
+        if: ${{ steps.check.outputs.needs_update == 'true' }}
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Automatically update Nixpkgs input
@@ -42,7 +42,7 @@ jobs:
   build:
     name: Build Bubblewrap statically
     needs: update
-    if: jobs.update.outputs.needs_update == 'true'
+    if: ${{ jobs.update.outputs.needs_update == 'true' }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -70,7 +70,7 @@ jobs:
   release:
     name: Release Bubblewrap
     needs: [update, build]
-    if: jobs.update.outputs.needs_update == 'true'
+    if: ${{ jobs.update.outputs.needs_update == 'true' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
