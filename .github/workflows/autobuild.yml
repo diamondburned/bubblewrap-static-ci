@@ -1,0 +1,79 @@
+name: Automatically Build and Release Bubblewrap
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  push:
+
+jobs:
+  update:
+    name: Update Nixpkgs input
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - id: update
+        run: |
+          nix flake lock --update-input nixpkgs
+
+      - id: check
+        run: |
+          needs_update=true
+          if released_version="$(gh release view --json name --jq .name)"; then
+            nixpkgs_version="v$(nix eval --raw .#default.version)"
+            if [[ "$released_version" == "$nixpkgs_version" ]]; then
+              needs_update=false
+            fi
+          fi
+          echo "needs_update=$needs_update" >> $GITHUB_OUTPUT
+
+      - id: commit
+        if: steps.check.outputs.needs_update == 'true'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: Automatically update Nixpkgs input
+          file_pattern: flake.lock
+    outputs:
+      needs_update: ${{ steps.check.outputs.needs_update }}
+
+  build:
+    name: Build Bubblewrap statically
+    needs: update
+    if: jobs.update.outputs.needs_update == 'true'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        system: [x86_64-linux, aarch64-linux]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: DeterminateSystems/magic-nix-cache-action@main
+
+      - id: build
+        run: |
+          nix build ".#bubblewrap-${{ matrix.system }}"
+
+      - id: pack
+        run: |
+          tar --zstd -cvf bubblewrap-${{ matrix.system }}.tar.zst result
+
+      - id: upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: bubblewrap-${{ matrix.system }}
+          path: bubblewrap-${{ matrix.system }}.tar.zst
+
+  release:
+    name: Release Bubblewrap
+    needs: [update, build]
+    if: jobs.update.outputs.needs_update == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+
+      - run: |
+          ls -la

@@ -14,24 +14,9 @@
 				};
 			};
 		in rec {
-			default = bwrap-x86_64-linux;
-
-			bwrap-x86_64-linux = pkgsHost.pkgsStatic.bubblewrap;
-			bwrap-aarch64-linux = pkgsCross.aarch64-linux.pkgsStatic.bubblewrap;
+			default = bubblewrap-x86_64-linux;
+			bubblewrap-x86_64-linux = pkgsHost.pkgsStatic.bubblewrap;
+			bubblewrap-aarch64-linux = pkgsCross.aarch64-linux.pkgsStatic.bubblewrap;
 		};
 	};
-
-		# flake-utils.lib.eachDefaultSystem (system: {
-		# 	packages = rec {
-		# 		default = bubblewrap;
-		# 		bubblewrap = nixpkgs.legacyPackages.${system}.pkgsStatic.bubblewrap;
-		# 	};
-		# 	apps = rec {
-		# 		default = bwrap;
-		# 		bwrap = {
-		# 			type = "app";
-		# 			program = nixpkgs.lib.getExe self.packages.${system}.bubblewrap;
-		# 		};
-		# 	};
-		# });
 }
