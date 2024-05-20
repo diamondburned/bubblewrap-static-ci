@@ -21,6 +21,8 @@ jobs:
 
       - id: check
         run: |
+          [[ $RUNNER_DEBUG ]] && set -x
+
           needs_update=true
           flake_metadata="$(nix flake metadata --json | jq -c)"
           latest_version="v$(nix eval --raw .#default.version)"
